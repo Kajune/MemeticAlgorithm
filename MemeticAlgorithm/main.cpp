@@ -17,6 +17,7 @@ struct Gene {
 int main() {
 	GeneticAlgorithm<Gene, double> ga;
 	GA_Params<double> params;
+	params.numNextGenes = 10;
 
 	ga.initialize(10);
 	ga.nextGeneration(params);
