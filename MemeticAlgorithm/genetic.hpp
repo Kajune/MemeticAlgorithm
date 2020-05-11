@@ -74,15 +74,19 @@ public:
 		#pragma omp parallel for
 		for (int i = 0; i < params.numNextGenes; i++) {
 			double op = impl::dist(impl::mt);
+			Gene newGene;
 			if (op <= params.crossoverRate) {
 				const auto& first = m_genes.at(params.sa(m_fitness));
 				const auto& second = m_genes.at(params.sa(m_fitness));
-				next_genes.emplace_back(first.crossover(second));
+				newGene = first.crossover(second);
 			} else if (op <= params.crossoverRate + params.mutationRate) {
-				next_genes.emplace_back(m_genes.at(params.sa(m_fitness)).mutation());
+				newGene = m_genes.at(params.sa(m_fitness)).mutation();
 			} else {
-				next_genes.emplace_back(m_genes.at(params.sa(m_fitness)));
+				newGene = m_genes.at(params.sa(m_fitness));
 			}
+
+			#pragma omp critical
+			next_genes.emplace_back(newGene);
 		}
 
 		m_genes = next_genes;

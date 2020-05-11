@@ -34,10 +34,14 @@ result = np.loadtxt('result.txt')
 result = np.reshape(result, (result.shape[0], -1, 2))
 
 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+fourcc = cv2.VideoWriter_fourcc(*'H264')
+out = cv2.VideoWriter('output.mp4',fourcc, 20.0, (256,256))
+
 for i in range(result.shape[0]):
 	vis = img.copy()
 	for j in range(result.shape[1]):
-		cv2.circle(vis, (int((result[i,j,0] + 1.0) * 127.5), int((result[i,j,1] + 1.0) * 127.5)), 3, (0,0,255), -1)
+		cv2.circle(vis, (int((result[i,j,0] + 1.0) * 127.5), int((result[i,j,1] + 1.0) * 127.5)), 3, (0,0,1.0), -1)
 	cv2.imshow('', vis)
 	cv2.waitKey(10)
+	out.write((vis * 255).astype(np.uint8))
 
