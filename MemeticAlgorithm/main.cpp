@@ -71,11 +71,18 @@ double testFunc(double x[3]) {
 double SampleGene::mutationStep = 0.2;
 
 int main() {
-	double param[] = { 2.0, 1.0, 0.0 };
-	auto j = impl::jacobian(testFunc, param);
-	for (const auto& x : j) {
-		std::cout << x << std::endl;
-	}
+	GradientDescent<double, 3> solver(testFunc, false);
+	solver.setUpperBound(0, 1);
+	solver.setUpperBound(1, 1);
+	solver.setUpperBound(2, 1);
+	solver.setLowerBound(0, -1);
+	solver.setLowerBound(1, -1);
+	solver.setLowerBound(2, -1);
+
+	double x[] = { 0.1, 0.1, 0.1 };
+	double finalCost = solver.optimize(x);
+	std::cout << "Minimum: " << finalCost << std::endl;
+	std::cout << "Param: " << x[0] << ", " << x[1] << ", " << x[2] << std::endl;
 
 	GeneticAlgorithm<SampleGene, double> ga;
 	GA_Params<double> params;

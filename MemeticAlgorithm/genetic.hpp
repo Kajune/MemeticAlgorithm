@@ -51,7 +51,7 @@ using SelectionAlgorithm = std::function<size_t(const std::vector<T>&)>;
 
 template <typename FitnessType>
 struct GA_Params {
-	size_t numNextGenes;
+	size_t numNextGenes = 32;
 	double crossoverRate = 0.8;
 	double mutationRate = 0.02;
 	SelectionAlgorithm<FitnessType> sa = RouletteSelection<FitnessType>();
