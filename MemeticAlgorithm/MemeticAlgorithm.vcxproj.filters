@@ -26,5 +26,8 @@
     <ClInclude Include="optimization.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="memetic.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

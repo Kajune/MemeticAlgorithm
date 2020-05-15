@@ -122,7 +122,7 @@ public:
 
 protected:
 	virtual void init() const override {
-		alpha_step = 0.1;
+		alpha_step = 1e-5;;
 	}
 
 	virtual void update(T(&x)[N], T last_cost) const override {
@@ -133,19 +133,29 @@ protected:
 			}
 		}
 
-		const size_t I = 1000;
+		const size_t I = 100;
+
+		T last_param[N];
 
 		T a(alpha_step);
 		for (size_t i = 0; i < I; i++) {
+			for (size_t i = 0; i < N; i++) {
+				last_param[i] = x[i];
+			}
+
 			for (size_t j = 0; j < N; j++) {
 				x[j] += a * grad[j];
 			}
 
 			this->applyBound(x);
-
 			T current_cost = this->m_costFunctor(x);
+
 			if ((this->minimize && current_cost >= last_cost) ||
 				(!this->minimize && current_cost <= last_cost)) {
+				for (size_t i = 0; i < N; i++) {
+					x[i] = last_param[i];
+				}
+
 				if (alpha_step < 10) {
 					alpha_step /= 2;
 				} else if (alpha_step * 10 > I) {

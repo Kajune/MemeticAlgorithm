@@ -116,7 +116,7 @@ public:
 		return std::accumulate(m_fitness.begin(), m_fitness.end(), FitnessType(0)) / m_fitness.size();
 	}
 
-private:
+protected:
 	std::vector<Gene> m_genes;
 	mutable std::vector<FitnessType> m_fitness;
 

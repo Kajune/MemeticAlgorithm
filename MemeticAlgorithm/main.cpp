@@ -3,29 +3,11 @@
 #include <fstream>
 #include <numeric>
 
-#include "genetic.hpp"
-#include "optimization.hpp"
+#include "memetic.hpp"
 
 std::random_device rd;
 std::mt19937 mt(rd());
 std::uniform_real_distribution<double> dist(-1, 1);
-
-struct Gene {
-	Gene() {
-	}
-
-	double evaluate() const {
-		return 0;
-	}
-
-	Gene crossover(const Gene& rhs) const {
-		return *this;
-	}
-
-	Gene mutation() const {
-		return *this;
-	}
-};
 
 double ackley(double x[3]) {
 	double a = -1.0, b = 10, c = 20;
@@ -62,53 +44,46 @@ struct SampleGene {
 		ret.y = std::max(std::min(y + y_op * mutationStep, 1.0), -1.0);
 		return ret;
 	}
-};
 
-double testFunc(double x[3]) {
-	return x[0] * x[0] * x[0] + 2.0 * x[1] * x[1] + 3.0 * x[2] + 4.0;
-}
+	double optimize() {
+		double p[3] = { x, y, 0 };
+		GradientDescent<double, 3> solver(ackley, false);
+		double finalCost = solver.optimize(p);
+		x = p[0];
+		y = p[1];
+		return finalCost;
+	}
+};
 
 double SampleGene::mutationStep = 0.2;
 
 int main() {
-	GradientDescent<double, 3> solver(testFunc, false);
-	solver.setUpperBound(0, 1);
-	solver.setUpperBound(1, 1);
-	solver.setUpperBound(2, 1);
-	solver.setLowerBound(0, -1);
-	solver.setLowerBound(1, -1);
-	solver.setLowerBound(2, -1);
-
-	double x[] = { 0.1, 0.1, 0.1 };
-	double finalCost = solver.optimize(x);
-	std::cout << "Minimum: " << finalCost << std::endl;
-	std::cout << "Param: " << x[0] << ", " << x[1] << ", " << x[2] << std::endl;
-
-	GeneticAlgorithm<SampleGene, double> ga;
+	MemeticAlgorithm<SampleGene, double> ma;
 	GA_Params<double> params;
 	params.numNextGenes = 32;
 
-	ga.initialize(32);
+	ma.initialize(32);
 
 	std::ofstream ofs("result.txt");
 
 	for (int g = 0; g < 100; g++) {
-		auto aveFitness = ga.nextGeneration(params);
+		auto aveFitness = ma.nextGeneration(params);
+		aveFitness = ma.optimize();
 		std::cout << g << "-th Generation, Average fitness: " << aveFitness << std::endl;
 
 		double ave = 0.0, var = 0.0;
-		for (const auto& gene : ga.getAllGenes()) {
+		for (const auto& gene : ma.getAllGenes()) {
 			ofs << gene.x << " " << gene.y << " ";
 			ave += (gene.x + gene.y) / 2;
 			var += pow((gene.x + gene.y) / 2, 2);
 		}
 		ofs << std::endl;
-		ave /= ga.getAllGenes().size();
-		var = var / ga.getAllGenes().size() - ave * ave;
+		ave /= ma.getAllGenes().size();
+		var = var / ma.getAllGenes().size() - ave * ave;
 
 //		SampleGene::mutationStep = sqrt(std::max(var, 0.0)) * 10;
 	}
 
-	const auto& best = ga.getBestGene();
+	const auto& best = ma.getBestGene();
 	std::cout << "Best: " << best.x << ", " << best.y << std::endl;
 }
